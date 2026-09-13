@@ -18,14 +18,26 @@ int main()
     std::getline(std::cin, myPipe.name);
 
     std::cout << "Введите длину трубы в км (length): ";
-    std::cin >> myPipe.length;
+    while(!(std::cin>>myPipe.length)){
+        std::cout << "Ошибка! Введите число: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
 
     std::cout << "Введите диаметр трубы в мм (diameter): ";
-    std::cin >> myPipe.diameter;
+    while (!(std::cin >> myPipe.diameter)) {
+        std::cout << "Ошибка! Введите число: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
 
     int repairFlag;
     std::cout << "Труба в ремонте? (inRepair, 1 - да, 0 - нет): ";
-    std::cin >> repairFlag;
+    while (!(std::cin >> repairFlag) || (repairFlag != 0 && repairFlag != 1)) {
+        std::cout << "Ошибка! Введите 1 или 0: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
     myPipe.inRepair = repairFlag;
 
     std::cout << "\nВведённые данные:\n";
