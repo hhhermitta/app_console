@@ -3,6 +3,8 @@
 #include <string>
 #include <limits>
 
+#include <clocale> 
+
 struct Pipe {
     std::string name;
     double length;
@@ -12,6 +14,8 @@ struct Pipe {
 
 int main()
 {
+    setlocale(LC_ALL, "Russian");
+
     Pipe myPipe;
     std::cout << "Введите километровую отметку (name): ";
     std::cin.ignore();
