@@ -12,6 +12,13 @@ struct Pipe {
     bool inRepair;
 };
 
+struct CompressorStation {
+    std::string name;
+    int totalShops;
+    int activeShops;
+    int stationClass;
+};
+
 int main()
 {
     setlocale(LC_ALL, "Russian");
