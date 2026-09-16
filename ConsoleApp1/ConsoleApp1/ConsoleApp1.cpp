@@ -29,14 +29,14 @@ int main()
     std::getline(std::cin, myPipe.name);
 
     std::cout << "Введите длину трубы в км (length): ";
-    while(!(std::cin>>myPipe.length)){
+    while(!(std::cin>>myPipe.length) || (myPipe.length <= 0)) {
         std::cout << "Ошибка! Введите число: ";
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
 
     std::cout << "Введите диаметр трубы в мм (diameter): ";
-    while (!(std::cin >> myPipe.diameter)) {
+    while (!(std::cin >> myPipe.diameter) || (myPipe.diameter <= 0)) {
         std::cout << "Ошибка! Введите число: ";
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -50,6 +50,25 @@ int main()
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
     myPipe.inRepair = repairFlag;
+
+    CompressorStation myCS;
+    std::cout << "Введите название КС: ";
+    std::cin.ignore();
+    std::getline(std::cin, myCS.name);
+
+    std::cout << "Введите количество цехов: ";
+    while (!(std::cin >> myCS.totalShops) || (myCS.totalShops <= 0)) {
+        std::cout << "Ошибка! Введите целое число: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+
+    std::cout << "Введите количество цехов в работе: ";
+    while (!(std::cin >> myCS.activeShops) || (myCS.activeShops <= 0)) {
+        std::cout << "Ошибка! Введите целое число: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
 
     std::cout << "\nВведённые данные:\n";
     std::cout << "name = " << myPipe.name<< "\n";
