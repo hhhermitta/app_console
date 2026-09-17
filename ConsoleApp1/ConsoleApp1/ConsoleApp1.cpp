@@ -3,8 +3,6 @@
 #include <string>
 #include <limits>
 
-#include <clocale> 
-
 struct Pipe {
     std::string name;
     double length;
@@ -23,73 +21,121 @@ int main()
 {
     setlocale(LC_ALL, "Russian");
 
-    Pipe myPipe;
-    std::cout << "Введите километровую отметку (name): ";
-    std::cin.ignore();
-    std::getline(std::cin, myPipe.name);
+    Pipe myPipe{};
+    CompressorStation myCS{};
+    bool pipeEntered = false;
+    bool csEntered = false;
 
-    std::cout << "Введите длину трубы в км (length): ";
-    while(!(std::cin>>myPipe.length) || (myPipe.length <= 0)) {
-        std::cout << "Ошибка! Введите число: ";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
+    int choice;
+    do {
+        std::cout << "\n Меню\n"
+            << "1. Ввести трубу\n"
+            << "2. Ввести КС\n"
+            << "3. Показать все\n"
+            << "4. Редактировать статус ремонта трубы\n"
+            << "0. Выход\n"
+            << "Выбор: ";
 
-    std::cout << "Введите диаметр трубы в мм (diameter): ";
-    while (!(std::cin >> myPipe.diameter) || (myPipe.diameter <= 0)) {
-        std::cout << "Ошибка! Введите число: ";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
+        if (!(std::cin >> choice)) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Ошибка! Введите число: ";
+            continue;
+        }
 
-    int repairFlag;
-    std::cout << "Труба в ремонте? (inRepair, 1 - да, 0 - нет): ";
-    while (!(std::cin >> repairFlag) || (repairFlag != 0 && repairFlag != 1)) {
-        std::cout << "Ошибка! Введите 1 или 0: ";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
-    myPipe.inRepair = repairFlag;
+        switch (choice) {
+        case 1: {
+            std::cin.ignore();
+            std::cout << "Отметка: ";
+            std::getline(std::cin, myPipe.name);
 
-    CompressorStation myCS;
-    std::cout << "Введите название КС: ";
-    std::cin.ignore();
-    std::getline(std::cin, myCS.name);
+            std::cout << "Длина (км): ";
+            while (!(std::cin >> myPipe.length) || myPipe.length <= 0) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "Ошибка! Введите число: ";
+            }
+            std::cout << "Диаметр (мм): ";
+            while (!(std::cin >> myPipe.diameter) || myPipe.diameter <= 0) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "Ошибка! Введите число: ";
+            }
 
-    std::cout << "Введите количество цехов: ";
-    while (!(std::cin >> myCS.totalShops) || (myCS.totalShops <= 0)) {
-        std::cout << "Ошибка! Введите целое число: ";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
+            int flag;
+            std::cout << "Труба в ремонте? (1 - да, 0 - нет): ";
+            while (!(std::cin >> flag) || (flag != 0 && flag != 1)) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "Ошибка! Введите 1 или 0: ";
+            }
+            myPipe.inRepair = flag;
+            pipeEntered = true;
+            break;
+        }
+        case 2: {
+            std::cin.ignore();
+            std::cout << "Название КС: ";
+            std::getline(std::cin, myCS.name);
 
-    std::cout << "Введите количество цехов в работе: ";
-    while (!(std::cin >> myCS.activeShops) || (myCS.activeShops <= 0)) {
-        std::cout << "Ошибка! Введите целое число: ";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
-
-    std::cout << "Введите класс станции: ";
-    while (!(std::cin >> myCS.stationClass) || myCS.stationClass < 1 || myCS.stationClass > 4) {
-        std::cout << "Ошибка! Введите число от 1 до 4: ";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
-
-    std::cout << "\nВведённые данные (Труба):\n";
-    std::cout << "Отметка = " << myPipe.name<< "\n";
-    std::cout << "Длина = " << myPipe.length << "\n";
-    std::cout << "Диаметр = " << myPipe.diameter << "\n";
-    std::cout << "В ремонте? -  " << myPipe.inRepair << "\n";
-
-    std::cout << "\nВведённые данные (КС): \n";
-    std::cout << "Название КС - " << myCS.name << "\n";
-    std::cout << "Количество цехов = " << myCS.totalShops << "\n";
-    std::cout << "Количество цехов в работе = " << myCS.activeShops << "\n";
-    std::cout << "Класс станции = " << myCS.stationClass << "\n";
-
+            std::cout << "Количество цехов: ";
+            while (!(std::cin >> myCS.totalShops) || myCS.totalShops <= 0) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "Ошибка! Введите целое число: ";
+            }
+            std::cout << "Количество цехов в работе: ";
+            while (!(std::cin >> myCS.activeShops) || myCS.activeShops <= 0) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "Ошибка! Введите целое число: ";
+            }
+            std::cout << "Класс станции (от 1 до 4): ";
+            while (!(std::cin >> myCS.stationClass) ||
+                myCS.stationClass < 1 || myCS.stationClass > 4) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "Ошибка! Введите число от 1 до 4: ";
+            }
+            csEntered = true;
+            break;
+        }
+        case 3:
+            if (!pipeEntered && !csEntered) {
+                std::cout << "Данных пока нет\n";
+                break;
+            }
+            if (pipeEntered) {
+                std::cout << "\nТруба\n"
+                    << "Отметка: " << myPipe.name << "\n"
+                    << "Длина: " << myPipe.length << "\n"
+                    << "Диаметр: " << myPipe.diameter << "\n"
+                    << "В ремонте: "
+                    << (myPipe.inRepair ? "да" : "нет") << "\n";
+            }
+            if (csEntered) {
+                std::cout << "\nКС\n"
+                    << "Название: " << myCS.name << "\n"
+                    << "Всего цехов: " << myCS.totalShops << "\n"
+                    << "В работе: " << myCS.activeShops << "\n"
+                    << "Класс: " << myCS.stationClass << "\n";
+            }
+            break;
+        case 4:
+            if (!pipeEntered) {
+                std::cout << "Сначала введите трубу (1)\n";
+                break;
+            }
+            myPipe.inRepair = !myPipe.inRepair;
+            std::cout << "Новый статус: "
+                << (myPipe.inRepair ? "в ремонте" : "исправна") << "\n";
+            break;
+        case 0:
+            std::cout << "Выход\n";
+            break;
+        default:
+            std::cout << "Такого пункта меню нет.\n";
+        }
+    } while (choice != 0);
     return 0;
 }
-
-
