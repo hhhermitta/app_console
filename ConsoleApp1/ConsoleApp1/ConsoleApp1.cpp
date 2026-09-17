@@ -70,11 +70,24 @@ int main()
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
 
-    std::cout << "\nВведённые данные:\n";
-    std::cout << "name = " << myPipe.name<< "\n";
-    std::cout << "length = " << myPipe.length << "\n";
-    std::cout << "diameter = " << myPipe.diameter << "\n";
-    std::cout << "inRepair = " << myPipe.inRepair << "\n";
+    std::cout << "Введите класс станции: ";
+    while (!(std::cin >> myCS.stationClass) || myCS.stationClass < 1 || myCS.stationClass > 4) {
+        std::cout << "Ошибка! Введите число от 1 до 4: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+
+    std::cout << "\nВведённые данные (Труба):\n";
+    std::cout << "Отметка = " << myPipe.name<< "\n";
+    std::cout << "Длина = " << myPipe.length << "\n";
+    std::cout << "Диаметр = " << myPipe.diameter << "\n";
+    std::cout << "В ремонте? -  " << myPipe.inRepair << "\n";
+
+    std::cout << "\nВведённые данные (КС): \n";
+    std::cout << "Название КС - " << myCS.name << "\n";
+    std::cout << "Количество цехов = " << myCS.totalShops << "\n";
+    std::cout << "Количество цехов в работе = " << myCS.activeShops << "\n";
+    std::cout << "Класс станции = " << myCS.stationClass << "\n";
 
     return 0;
 }
