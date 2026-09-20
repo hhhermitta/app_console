@@ -61,6 +61,32 @@ void saveToFile(const Pipe& pipe, const CompressorStation& cs, bool pipeEntered,
     std::cout << "Данные сохранены в data.txt\n";
 }
 
+void loadFromFile(Pipe& pipe, CompressorStation& cs, bool& pipeEntered, bool& csEntered) {
+    std::ifstream fin("data.txt");
+    if (!fin) {
+        std::cout << "Не удалось открыть файл для чтения\n";
+        return;
+    }
+    fin >> pipeEntered;
+    if (pipeEntered) {
+        fin.ignore();
+        std::getline(fin, pipe.name);
+        fin >> pipe.length;
+        fin >> pipe.diameter;
+        fin >> pipe.inRepair;
+    }
+    fin >> csEntered;
+    if (csEntered) {
+        fin.ignore();
+        std::getline(fin, cs.name);
+        fin >> cs.totalShops;
+        fin >> cs.activeShops;
+        fin >> cs.stationClass;
+    }
+    fin.close();
+    std::cout << "Данные загружены из data.txt\n";
+}
+
 int main()
 {
     setlocale(LC_ALL, "Russian");
@@ -80,6 +106,7 @@ int main()
             << "5. Запустить цех\n"
             << "6. Остановить цех\n"
             << "7. Сохранить в файл\n"
+            << "8. Загрузить данные из файла\n"
             << "0. Выход\n"
             << "Выбор: ";
 
@@ -203,6 +230,10 @@ int main()
 
         case 7:
             saveToFile(myPipe, myCS, pipeEntered, csEntered);
+            break;
+
+        case 8:
+            loadFromFile(myPipe, myCS, pipeEntered, csEntered);
             break;
 
         case 0:
