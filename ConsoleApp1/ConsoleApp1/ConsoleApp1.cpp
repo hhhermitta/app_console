@@ -61,7 +61,7 @@ int main()
         if (!(std::cin >> choice)) {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "Ошибка! Введите число: ";
+            std::cout << "Ошибка! Введите неотрицательное число: ";
             continue;
         }
 
@@ -75,14 +75,14 @@ int main()
             while (!(std::cin >> myPipe.length) || myPipe.length <= 0) {
                 std::cin.clear();
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cout << "Ошибка! Введите число: ";
+                std::cout << "Ошибка! Введите неотрицательное число: ";
             }
 
             std::cout << "Диаметр (мм): ";
             while (!(std::cin >> myPipe.diameter) || myPipe.diameter <= 0) {
                 std::cin.clear();
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cout << "Ошибка! Введите число: ";
+                std::cout << "Ошибка! Введите неотрицательное число: ";
             }
 
             int flag;
@@ -106,7 +106,7 @@ int main()
             while (!(std::cin >> myCS.totalShops) || myCS.totalShops <= 0) {
                 std::cin.clear();
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cout << "Ошибка! Введите целое число: ";
+                std::cout << "Ошибка! Введите целое неотрицательное число: ";
             }
 
             std::cout << "Количество цехов в работе: ";
