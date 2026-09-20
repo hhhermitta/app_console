@@ -37,6 +37,30 @@ bool stopShop(CompressorStation& cs) {
     return true;
 }
 
+void saveToFile(const Pipe& pipe, const CompressorStation& cs, bool pipeEntered, bool csEntered) {
+    std::ofstream fout("data.txt");
+    if (!fout) {
+        std::cout << "Не удалось открыть файл для записи\n";
+        return;
+    }
+    fout << pipeEntered << "\n";
+    if (pipeEntered) {
+        fout << pipe.name << "\n";
+        fout << pipe.length << "\n";
+        fout << pipe.diameter << "\n";
+        fout << pipe.inRepair << "\n";
+    }
+    fout << csEntered << "\n";
+    if (csEntered) {
+        fout << cs.name << "\n";
+        fout << cs.totalShops << "\n";
+        fout << cs.activeShops << "\n";
+        fout << cs.stationClass << "\n";
+    }
+    fout.close();
+    std::cout << "Данные сохранены в data.txt\n";
+}
+
 int main()
 {
     setlocale(LC_ALL, "Russian");
@@ -55,6 +79,7 @@ int main()
             << "4. Редактировать статус ремонта трубы\n"
             << "5. Запустить цех\n"
             << "6. Остановить цех\n"
+            << "7. Сохранить в файл\n"
             << "0. Выход\n"
             << "Выбор: ";
 
@@ -174,6 +199,10 @@ int main()
                 break;
             }
             stopShop(myCS);
+            break;
+
+        case 7:
+            saveToFile(myPipe, myCS, pipeEntered, csEntered);
             break;
 
         case 0:
