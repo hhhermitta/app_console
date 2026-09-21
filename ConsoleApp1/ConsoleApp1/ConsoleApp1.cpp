@@ -6,7 +6,7 @@
 struct Pipe {
     std::string name;
     double length;
-    double diameter;
+    double diameter;//!! в мм
     bool inRepair;
 };
 
@@ -14,7 +14,7 @@ struct CompressorStation {
     std::string name;
     int totalShops;
     int activeShops;
-    int stationClass;
+    char stationClass;
 };
 
 bool startShop(CompressorStation& cs) {
@@ -44,14 +44,14 @@ void saveToFile(const Pipe& pipe, const CompressorStation& cs, bool pipeEntered,
         return;
     }
     fout << pipeEntered << "\n";
-    if (pipeEntered) {
+    if (pipeEntered) {//!!
         fout << pipe.name << "\n";
         fout << pipe.length << "\n";
         fout << pipe.diameter << "\n";
         fout << pipe.inRepair << "\n";
     }
     fout << csEntered << "\n";
-    if (csEntered) {
+    if (csEntered) {//!!!
         fout << cs.name << "\n";
         fout << cs.totalShops << "\n";
         fout << cs.activeShops << "\n";
@@ -68,17 +68,15 @@ void loadFromFile(Pipe& pipe, CompressorStation& cs, bool& pipeEntered, bool& cs
         return;
     }
     fin >> pipeEntered;
-    if (pipeEntered) {
-        fin.ignore();
-        std::getline(fin, pipe.name);
+    if (pipeEntered) {//!!
+        std::getline(fin>>std::ws, pipe.name);
         fin >> pipe.length;
         fin >> pipe.diameter;
         fin >> pipe.inRepair;
     }
     fin >> csEntered;
-    if (csEntered) {
-        fin.ignore();
-        std::getline(fin, cs.name);
+    if (csEntered) {//!!!
+        std::getline(fin>>std::ws, cs.name);
         fin >> cs.totalShops;
         fin >> cs.activeShops;
         fin >> cs.stationClass;
@@ -115,9 +113,10 @@ int main()
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::cout << "Ошибка! Введите неотрицательное число: ";
             continue;
-        }
+            }
 
         switch (choice) {
+            //!! для каждой структуры (pipe и cs) свои функции.
         case 1: {
             std::cin.ignore();
             std::cout << "Отметка: ";
@@ -169,8 +168,7 @@ int main()
             }
 
             std::cout << "Класс станции (от 1 до 4): ";
-            while (!(std::cin >> myCS.stationClass) ||
-                myCS.stationClass < 1 || myCS.stationClass > 4) {
+            while (!(std::cin >> myCS.stationClass) || myCS.stationClass < '1' || myCS.stationClass > '4') {
                 std::cin.clear();
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 std::cout << "Ошибка! Введите число от 1 до 4: ";
