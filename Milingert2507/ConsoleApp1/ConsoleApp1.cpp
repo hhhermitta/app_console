@@ -38,7 +38,7 @@ bool stopShop(CompressorStation& cs) {
 }
 
 void saveToFileP(const Pipe& pipe, bool pipeEntered) {
-    std::ofstream fout("data.txt");
+    std::ofstream fout("dataP.txt");
     if (!fout) {
         std::cout << "Не удалось открыть файл для записи\n";
         return;
@@ -51,11 +51,11 @@ void saveToFileP(const Pipe& pipe, bool pipeEntered) {
         fout << pipe.inRepair << "\n";
     }
     fout.close();
-    std::cout << "Данные трубы сохранены в data.txt\n";
+    std::cout << "Данные трубы сохранены в dataP.txt\n";
 }
 
 void saveToFileCS(const CompressorStation& cs, bool csEntered) {
-    std::ofstream fout("data.txt");
+    std::ofstream fout("dataCS.txt");
     if (!fout) {
         std::cout << "Не удалось открыть файл для записи\n";
         return;
@@ -68,41 +68,41 @@ void saveToFileCS(const CompressorStation& cs, bool csEntered) {
         fout << cs.stationClass << "\n";
     }
     fout.close();
-    std::cout << "Данные КС сохранены в data.txt\n";
+    std::cout << "Данные КС сохранены в dataCS.txt\n";
 }
 
 void loadFromFileP(Pipe& pipe, bool& pipeEntered) {
-    std::ifstream fin("data.txt");
+    std::ifstream fin("dataP.txt");
     if (!fin) {
         std::cout << "Не удалось открыть файл для чтения\n";
         return;
     }
     fin >> pipeEntered;
-    if (pipeEntered) {//!!
+    if (pipeEntered) {
         std::getline(fin>>std::ws, pipe.name);
         fin >> pipe.length;
         fin >> pipe.diameter;
         fin >> pipe.inRepair;
     }
     fin.close();
-    std::cout << "Данные трубы загружены из data.txt\n";
+    std::cout << "Данные трубы загружены из dataP.txt\n";
 }
 
 void loadFromFileCS(CompressorStation& cs, bool& csEntered) {
-    std::ifstream fin("data.txt");
+    std::ifstream fin("dataCS.txt");
     if (!fin) {
         std::cout << "Не удалось открыть файл для чтения\n";
         return;
     }
     fin >> csEntered;
     if (csEntered) {
-        fin >> cs.name;
+        std::getline(fin >> std::ws, cs.name);
         fin >> cs.totalShops;
         fin >> cs.activeShops;
         fin >> cs.stationClass;
     }
     fin.close();
-    std::cout << "Данные КС загружены из data.txt\n";
+    std::cout << "Данные КС загружены из dataCS.txt\n";
 }
 
 int main()
@@ -123,10 +123,10 @@ int main()
             << "4. Редактировать статус ремонта трубы\n"
             << "5. Запустить цех\n"
             << "6. Остановить цех\n"
-            << "7. Сохранить в файл\n"
-            << "8. Загрузить данные из файла\n"
-            << "9. Сохранить в файл трубу\n"
-            << "10. Сохранить в файл КС\n"
+            << "7. Сохранить в файл трубу\n"
+            << "8. Сохранить в файл КС\n"
+            << "9. Загрузить трубу из файла\n"
+            << "10. Загрузить КС из файла\n"
             << "0. Выход\n"
             << "Выбор: ";
 
@@ -138,7 +138,6 @@ int main()
             }
 
         switch (choice) {
-            //!! для каждой структуры (pipe и cs) свои функции.
         case 1: {
             std::cin.ignore();
             std::cout << "Отметка: ";
