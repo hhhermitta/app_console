@@ -37,8 +37,8 @@ bool stopShop(CompressorStation& cs) {
     return true;
 }
 
-void saveToFile(const Pipe& pipe, const CompressorStation& cs, bool pipeEntered, bool csEntered) {
-    std::ofstream fout("data.txt");
+void saveToFileP(const Pipe& pipe, bool pipeEntered) {
+    std::ofstream fout("dataP.txt");
     if (!fout) {
         std::cout << "Не удалось открыть файл для записи\n";
         return;
@@ -50,6 +50,16 @@ void saveToFile(const Pipe& pipe, const CompressorStation& cs, bool pipeEntered,
         fout << pipe.diameter << "\n";
         fout << pipe.inRepair << "\n";
     }
+    fout.close();
+    std::cout << "Данные трубы сохранены в dataP.txt\n";
+}
+
+void saveToFileCS(const CompressorStation& cs, bool csEntered) {
+    std::ofstream fout("dataCS.txt");
+    if (!fout) {
+        std::cout << "Не удалось открыть файл для записи\n";
+        return;
+    }
     fout << csEntered << "\n";
     if (csEntered) {
         fout << cs.name << "\n";
@@ -58,11 +68,11 @@ void saveToFile(const Pipe& pipe, const CompressorStation& cs, bool pipeEntered,
         fout << cs.stationClass << "\n";
     }
     fout.close();
-    std::cout << "Данные сохранены в data.txt\n";
+    std::cout << "Данные КС сохранены в dataCS.txt\n";
 }
 
-void loadFromFile(Pipe& pipe, CompressorStation& cs, bool& pipeEntered, bool& csEntered) {
-    std::ifstream fin("data.txt");
+void loadFromFileP(Pipe& pipe, bool& pipeEntered) {
+    std::ifstream fin("dataP.txt");
     if (!fin) {
         std::cout << "Не удалось открыть файл для чтения\n";
         return;
@@ -74,15 +84,25 @@ void loadFromFile(Pipe& pipe, CompressorStation& cs, bool& pipeEntered, bool& cs
         fin >> pipe.diameter;
         fin >> pipe.inRepair;
     }
+    fin.close();
+    std::cout << "Данные трубы загружены из dataP.txt\n";
+}
+
+void loadFromFileCS(CompressorStation& cs, bool& csEntered) {
+    std::ifstream fin("dataCS.txt");
+    if (!fin) {
+        std::cout << "Не удалось открыть файл для чтения\n";
+        return;
+    }
     fin >> csEntered;
     if (csEntered) {
-        std::getline(fin>>std::ws, cs.name);
+        std::getline(fin >> std::ws, cs.name);
         fin >> cs.totalShops;
         fin >> cs.activeShops;
         fin >> cs.stationClass;
     }
     fin.close();
-    std::cout << "Данные загружены из data.txt\n";
+    std::cout << "Данные КС загружены из dataCS.txt\n";
 }
 
 int main()
@@ -103,8 +123,10 @@ int main()
             << "4. Редактировать статус ремонта трубы\n"
             << "5. Запустить цех\n"
             << "6. Остановить цех\n"
-            << "7. Сохранить в файл\n"
-            << "8. Загрузить данные из файла\n"
+            << "7. Сохранить данные трубы в файл\n"
+            << "8. Сохранить данные КС в файл\n"
+            << "9. Загрузить данные трубы из файла\n"
+            << "10. Загрузить данные КС из файла\n"
             << "0. Выход\n"
             << "Выбор: ";
 
@@ -226,11 +248,19 @@ int main()
             break;
 
         case 7:
-            saveToFile(myPipe, myCS, pipeEntered, csEntered);
+            saveToFileP(myPipe, pipeEntered);
             break;
 
         case 8:
-            loadFromFile(myPipe, myCS, pipeEntered, csEntered);
+            saveToFileCS(myCS, csEntered);
+            break;
+
+        case 9:
+            loadFromFileP(myPipe, pipeEntered);
+            break;
+
+        case 10:
+            loadFromFileCS(myCS, csEntered);
             break;
 
         case 0:
