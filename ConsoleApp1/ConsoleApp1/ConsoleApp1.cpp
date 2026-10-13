@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <limits>
+#include <cctype>
 
 struct Pipe {
     std::string name;
@@ -17,6 +18,14 @@ struct CompressorStation {
     char stationClass;
 };
 
+bool isValidName(const std::string& s) {
+    if (s.empty()) return false;
+    for (unsigned char c : s) {
+        if (std::isalnum(c)) continue;
+        return false;
+    }
+    return true;
+}
 void inputPipeName(Pipe& pipe) {
     std::cin.ignore();
     std::cout << "Отметка: ";
