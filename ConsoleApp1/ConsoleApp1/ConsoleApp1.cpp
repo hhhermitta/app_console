@@ -30,6 +30,11 @@ void inputPipeName(Pipe& pipe) {
     std::cin.ignore();
     std::cout << "Отметка: ";
     std::getline(std::cin, pipe.name);
+    while (!isValidName(pipe.name)) {
+        std::cout << "Ошибка! Недопустимые символы. Разрешены буквы, цифры.\n";
+        std::cout << "Отметка: ";
+        std::getline(std::cin, pipe.name);
+    }
 }
 
 void inputPipeLength(Pipe& pipe) {
@@ -80,6 +85,11 @@ void inputCSName(CompressorStation& cs) {
     std::cin.ignore();
     std::cout << "Название КС: ";
     std::getline(std::cin, cs.name);
+    while (!isValidName(cs.name)) {
+        std::cout << "Ошибка! Недопустимые символы. Разрешены буквы, цифры.\n";
+        std::cout << "Название КС: ";
+        std::getline(std::cin, cs.name);
+    }
 }
 
 void inputCSTotalShops(CompressorStation& cs) {
@@ -234,7 +244,6 @@ void loadFromFile(Pipe& pipe, bool& pipeEntered,
 int main()
 {
     setlocale(LC_ALL, "Russian");
-
     Pipe myPipe{};
     CompressorStation myCS{};
     bool pipeEntered = false;
