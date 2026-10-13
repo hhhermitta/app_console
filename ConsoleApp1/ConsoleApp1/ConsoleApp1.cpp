@@ -17,6 +17,100 @@ struct CompressorStation {
     char stationClass;
 };
 
+void inputPipeName(Pipe& pipe) {
+    std::cin.ignore();
+    std::cout << "Отметка: ";
+    std::getline(std::cin, pipe.name);
+}
+
+void inputPipeLength(Pipe& pipe) {
+    std::cout << "Длина (км): ";
+    while (!(std::cin >> pipe.length) || pipe.length <= 0) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Ошибка! Введите положительное число: ";
+    }
+}
+
+void inputPipeDiameter(Pipe& pipe) {
+    std::cout << "Диаметр (мм): ";
+    while (!(std::cin >> pipe.diameter) || pipe.diameter <= 0) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Ошибка! Введите положительное число: ";
+    }
+}
+
+void inputPipeRepair(Pipe& pipe) {
+    int flag;
+    std::cout << "Труба в ремонте? (1 - да, 0 - нет): ";
+    while (!(std::cin >> flag) || (flag != 0 && flag != 1)) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Ошибка! Введите 1 или 0: ";
+    }
+    pipe.inRepair = flag;
+}
+
+void editPipeRepair(Pipe& pipe) {
+    pipe.inRepair = !pipe.inRepair;
+    std::cout << "Новый статус: "
+        << (pipe.inRepair ? "в ремонте" : "исправна") << "\n";
+}
+
+void printPipe(const Pipe& pipe) {
+    std::cout << "\nТруба\n"
+        << "Отметка: " << pipe.name << "\n"
+        << "Длина: " << pipe.length << "\n"
+        << "Диаметр: " << pipe.diameter << "\n"
+        << "В ремонте: "
+        << (pipe.inRepair ? "да" : "нет") << "\n";
+}
+
+void inputCSName(CompressorStation& cs) {
+    std::cin.ignore();
+    std::cout << "Название КС: ";
+    std::getline(std::cin, cs.name);
+}
+
+void inputCSTotalShops(CompressorStation& cs) {
+    std::cout << "Количество цехов: ";
+    while (!(std::cin >> cs.totalShops) || cs.totalShops <= 0) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Ошибка! Введите целое положительное число: ";
+    }
+}
+
+void inputCSActiveShops(CompressorStation& cs) {
+    std::cout << "Количество цехов в работе: ";
+    while (!(std::cin >> cs.activeShops)
+        || cs.activeShops < 0
+        || cs.activeShops > cs.totalShops) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Ошибка! Введите число от 0 до " << cs.totalShops << ": ";
+    }
+}
+
+void inputCSClass(CompressorStation& cs) {
+    std::cout << "Класс станции (от 1 до 4): ";
+    while (!(std::cin >> cs.stationClass)
+        || cs.stationClass < '1'
+        || cs.stationClass > '4') {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Ошибка! Введите число от 1 до 4: ";
+    }
+}
+
+void printCS(const CompressorStation& cs) {
+    std::cout << "\nКС\n"
+        << "Название: " << cs.name << "\n"
+        << "Всего цехов: " << cs.totalShops << "\n"
+        << "В работе: " << cs.activeShops << "\n"
+        << "Класс: " << cs.stationClass << "\n";
+}
 bool startShop(CompressorStation& cs) {
     if (cs.activeShops >= cs.totalShops) {
         std::cout << "Все цеха работают " << cs.activeShops << "/" << cs.totalShops << "\n";
@@ -37,6 +131,7 @@ bool stopShop(CompressorStation& cs) {
     return true;
 }
 
+
 void saveToFileP(const Pipe& pipe, bool pipeEntered) {
     std::ofstream fout("dataP.txt");
     if (!fout) {
@@ -54,12 +149,31 @@ void saveToFileP(const Pipe& pipe, bool pipeEntered) {
     std::cout << "Данные трубы сохранены в dataP.txt\n";
 }
 
-void saveToFileCS(const CompressorStation& cs, bool csEntered) {
-    std::ofstream fout("dataCS.txt");
+void savePipeToFile(const Pipe& pipe, bool pipeEntered) {
+    std::ofstream fout("data.txt", std::ios::app);
     if (!fout) {
         std::cout << "Не удалось открыть файл для записи\n";
         return;
     }
+    fout << "PIPE\n";
+    fout << pipeEntered << "\n";
+    if (pipeEntered) {
+        fout << pipe.name << "\n";
+        fout << pipe.length << "\n";
+        fout << pipe.diameter << "\n";
+        fout << pipe.inRepair << "\n";
+    }
+    fout.close();
+    std::cout << "Данные трубы сохранены в data.txt\n";
+}
+
+void saveCSToFile(const CompressorStation& cs, bool csEntered) {
+    std::ofstream fout("data.txt", std::ios::app);
+    if (!fout) {
+        std::cout << "Не удалось открыть файл для записи\n";
+        return;
+    }
+    fout << "CS\n";
     fout << csEntered << "\n";
     if (csEntered) {
         fout << cs.name << "\n";
@@ -68,41 +182,44 @@ void saveToFileCS(const CompressorStation& cs, bool csEntered) {
         fout << cs.stationClass << "\n";
     }
     fout.close();
-    std::cout << "Данные КС сохранены в dataCS.txt\n";
+    std::cout << "Данные КС сохранены в data.txt\n";
 }
 
-void loadFromFileP(Pipe& pipe, bool& pipeEntered) {
-    std::ifstream fin("dataP.txt");
+void loadFromFile(Pipe& pipe, bool& pipeEntered,
+    CompressorStation& cs, bool& csEntered) {
+    std::ifstream fin("data.txt");
     if (!fin) {
         std::cout << "Не удалось открыть файл для чтения\n";
         return;
     }
-    fin >> pipeEntered;
-    if (pipeEntered) {
-        std::getline(fin>>std::ws, pipe.name);
-        fin >> pipe.length;
-        fin >> pipe.diameter;
-        fin >> pipe.inRepair;
-    }
-    fin.close();
-    std::cout << "Данные трубы загружены из dataP.txt\n";
-}
 
-void loadFromFileCS(CompressorStation& cs, bool& csEntered) {
-    std::ifstream fin("dataCS.txt");
-    if (!fin) {
-        std::cout << "Не удалось открыть файл для чтения\n";
-        return;
-    }
-    fin >> csEntered;
-    if (csEntered) {
-        std::getline(fin >> std::ws, cs.name);
-        fin >> cs.totalShops;
-        fin >> cs.activeShops;
-        fin >> cs.stationClass;
+    std::string tag;
+    while (fin >> tag) {
+        if (tag == "PIPE") {
+            fin >> pipeEntered;
+            if (pipeEntered) {
+                std::getline(fin >> std::ws, pipe.name);
+                fin >> pipe.length;
+                fin >> pipe.diameter;
+                fin >> pipe.inRepair;
+            }
+            std::cout << "Данные трубы загружены из data.txt\n";
+        }
+        else if (tag == "CS") {
+            fin >> csEntered;
+            if (csEntered) {
+                std::getline(fin >> std::ws, cs.name);
+                fin >> cs.totalShops;
+                fin >> cs.activeShops;
+                fin >> cs.stationClass;
+            }
+            std::cout << "Данные КС загружены из data.txt\n";
+        }
+        else {
+            std::cout << "Неизвестный тег в файле: " << tag << "\n";
+        }
     }
     fin.close();
-    std::cout << "Данные КС загружены из dataCS.txt\n";
 }
 
 int main()
@@ -137,139 +254,67 @@ int main()
             continue;
             }
 
-        switch (choice) {
-        case 1: {
-            std::cin.ignore();
-            std::cout << "Отметка: ";
-            std::getline(std::cin, myPipe.name);
-
-            std::cout << "Длина (км): ";
-            while (!(std::cin >> myPipe.length) || myPipe.length <= 0) {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cout << "Ошибка! Введите неотрицательное число: ";
-            }
-
-            std::cout << "Диаметр (мм): ";
-            while (!(std::cin >> myPipe.diameter) || myPipe.diameter <= 0) {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cout << "Ошибка! Введите неотрицательное число: ";
-            }
-
-            int flag;
-            std::cout << "Труба в ремонте? (1 - да, 0 - нет): ";
-            while (!(std::cin >> flag) || (flag != 0 && flag != 1)) {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cout << "Ошибка! Введите 1 или 0: ";
-            }
-            myPipe.inRepair = flag;
+        if (choice == 1) {
+            inputPipeName(myPipe);
+            inputPipeLength(myPipe);
+            inputPipeDiameter(myPipe);
+            inputPipeRepair(myPipe);
             pipeEntered = true;
-            break;
         }
-
-        case 2: {
-            std::cin.ignore();
-            std::cout << "Название КС: ";
-            std::getline(std::cin, myCS.name);
-
-            std::cout << "Количество цехов: ";
-            while (!(std::cin >> myCS.totalShops) || myCS.totalShops <= 0) {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cout << "Ошибка! Введите целое неотрицательное число: ";
-            }
-
-            std::cout << "Количество цехов в работе: ";
-            while (!(std::cin >> myCS.activeShops) || myCS.activeShops < 0 || myCS.activeShops > myCS.totalShops) {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cout << "Ошибка! Введите число от 0 до " << myCS.totalShops << ": ";
-            }
-
-            std::cout << "Класс станции (от 1 до 4): ";
-            while (!(std::cin >> myCS.stationClass) || myCS.stationClass < '1' || myCS.stationClass > '4') {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cout << "Ошибка! Введите число от 1 до 4: ";
-            }
-
+        else if (choice == 2) {
+            inputCSName(myCS);
+            inputCSTotalShops(myCS);
+            inputCSActiveShops(myCS);
+            inputCSClass(myCS);
             csEntered = true;
-            break;
         }
-
-        case 3:
+        else if (choice == 3) {
             if (!pipeEntered && !csEntered) {
                 std::cout << "Данных пока нет\n";
-                break;
             }
-            if (pipeEntered) {
-                std::cout << "\nТруба\n"
-                    << "Отметка: " << myPipe.name << "\n"
-                    << "Длина: " << myPipe.length << "\n"
-                    << "Диаметр: " << myPipe.diameter << "\n"
-                    << "В ремонте: "
-                    << (myPipe.inRepair ? "да" : "нет") << "\n";
+            else {
+                if (pipeEntered) printPipe(myPipe);
+                if (csEntered) printCS(myCS);
             }
-            if (csEntered) {
-                std::cout << "\nКС\n"
-                    << "Название: " << myCS.name << "\n"
-                    << "Всего цехов: " << myCS.totalShops << "\n"
-                    << "В работе: " << myCS.activeShops << "\n"
-                    << "Класс: " << myCS.stationClass << "\n";
-            }
-            break;
-
-        case 4:
+        }
+        else if (choice == 4) {
             if (!pipeEntered) {
                 std::cout << "Сначала введите трубу (1)\n";
-                break;
             }
-            myPipe.inRepair = !myPipe.inRepair;
-            std::cout << "Новый статус: "
-                << (myPipe.inRepair ? "в ремонте" : "исправна") << "\n";
-            break;
-
-        case 5:
+            else {
+                editPipeRepair(myPipe);
+            }
+        }
+        else if (choice == 5) {
             if (!csEntered) {
                 std::cout << "Сначала введите КС (2)\n";
-                break;
             }
-            startShop(myCS);
-            break;
-
-        case 6:
+            else {
+                startShop(myCS);
+            }
+        }
+        else if (choice == 6) {
             if (!csEntered) {
                 std::cout << "Сначала введите КС (2)\n";
-                break;
             }
-            stopShop(myCS);
-            break;
-
-        case 7:
-            saveToFileP(myPipe, pipeEntered);
-            break;
-
-        case 8:
-            saveToFileCS(myCS, csEntered);
-            break;
-
-        case 9:
-            loadFromFileP(myPipe, pipeEntered);
-            break;
-
-        case 10:
-            loadFromFileCS(myCS, csEntered);
-            break;
-
-        case 0:
+            else {
+                stopShop(myCS);
+            }
+        }
+        else if (choice == 7) {
+            savePipeToFile(myPipe, pipeEntered);
+        }
+        else if (choice == 8) {
+            saveCSToFile(myCS, csEntered);
+        }
+        else if (choice == 9) {
+            loadFromFile(myPipe, pipeEntered, myCS, csEntered);
+        }
+        else if (choice == 0) {
             std::cout << "Выход\n";
-            break;
-
-        default:
+        }
+        else {
             std::cout << "Неверный пункт меню.\n";
-            break;
         }
     } while (choice != 0);
     return 0;
