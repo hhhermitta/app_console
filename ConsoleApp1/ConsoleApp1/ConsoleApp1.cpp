@@ -21,11 +21,14 @@ struct CompressorStation {
 bool isValidName(const std::string& s) {
     if (s.empty()) return false;
     for (unsigned char c : s) {
-        if (std::isalnum(c) || c == ' ' || c == ',' || c == '№') 
+        if (std::isalnum(c) || c == ' ' || c == ',' || c == '.' || c == '_' || c == '№')
             continue;
+    {
         return false;
     }
+}
     return true;
+
 }
 void inputPipeName(Pipe& pipe) {
     std::cin.ignore();
