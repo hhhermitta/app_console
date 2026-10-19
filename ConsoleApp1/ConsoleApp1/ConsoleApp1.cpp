@@ -297,7 +297,7 @@ int main()
             saveToFile(myPipe, pipeEntered, myCS, csEntered);
         }
         else if (choice == 8) {
-            saveToFile(myPipe, pipeEntered, myCS, csEntered);
+            loadFromFile(myPipe, pipeEntered, myCS, csEntered);
         }
         else if (choice == 0) {
             std::cout << "Выход\n";
