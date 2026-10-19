@@ -185,10 +185,9 @@ void loadFromFile(Pipe& pipe, bool& pipeEntered,
         std::cout << "Не удалось открыть файл для чтения\n";
         return;
     }
-
     std::string tag;
     while (fin >> tag) {
-        if (tag == "PIPE") {//!!
+        if (tag == "PIPE") {
             fin >> pipeEntered;
             if (pipeEntered) {
                 std::getline(fin >> std::ws, pipe.name);
@@ -200,7 +199,7 @@ void loadFromFile(Pipe& pipe, bool& pipeEntered,
         }
         else if (tag == "CS") {
             fin >> csEntered;
-            if (csEntered) {//!!
+            if (csEntered) {
                 std::getline(fin >> std::ws, cs.name);
                 fin >> cs.totalShops;
                 fin >> cs.activeShops;
