@@ -70,6 +70,13 @@ void inputPipeRepair(Pipe& pipe) {
     pipe.inRepair = flag;
 }
 
+void inputPipe(Pipe& pipe) {
+    inputPipeName(pipe);
+    inputPipeLength(pipe);
+    inputPipeDiameter(pipe);
+    inputPipeRepair(pipe);
+}
+
 void editPipeRepair(Pipe& pipe) {
     pipe.inRepair = !pipe.inRepair;
     std::cout << "Новый статус: "
@@ -125,6 +132,13 @@ void inputCSClass(CompressorStation& cs) {
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         std::cout << "Ошибка! Введите число от 1 до 4: ";
     }
+}
+
+void inputCompressorStation(CompressorStation& cs) {
+    inputCSName(cs);
+    inputCSTotalShops(cs);
+    inputCSActiveShops(cs);
+    inputCSClass(cs);
 }
 
 void printCS(const CompressorStation& cs) {
