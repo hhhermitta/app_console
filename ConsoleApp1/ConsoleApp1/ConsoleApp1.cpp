@@ -231,10 +231,8 @@ int main()
             << "4. Редактировать статус ремонта трубы\n"
             << "5. Запустить цех\n"
             << "6. Остановить цех\n"
-            << "7. Сохранить данные трубы в файл\n"
-            << "8. Сохранить данные КС в файл\n"
-            << "9. Загрузить данные трубы из файла\n"
-            << "10. Загрузить данные КС из файла\n"
+            << "7. Сохранить данные в файл\n"
+            << "8. Загрузить данные из файла\n"
             << "0. Выход\n"
             << "Выбор: ";
 
@@ -293,13 +291,10 @@ int main()
             }
         }
         else if (choice == 7) {
-            savePipeToFile(myPipe, pipeEntered);
+            saveToFile(myPipe, pipeEntered, myCS, csEntered);
         }
         else if (choice == 8) {
-            saveCSToFile(myCS, csEntered);
-        }
-        else if (choice == 9) {
-            loadFromFile(myPipe, pipeEntered, myCS, csEntered);
+            saveToFile(myPipe, pipeEntered, myCS, csEntered);
         }
         else if (choice == 0) {
             std::cout << "Выход\n";
