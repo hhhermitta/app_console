@@ -21,7 +21,8 @@ struct CompressorStation {
 bool isValidName(const std::string& s) {
     if (s.empty()) return false;
     for (unsigned char c : s) {
-        if (std::isalnum(c)) continue;
+        if (std::isalnum(c) || c == ' ' || c == ',' || c == '№') 
+            continue;
         return false;
     }
     return true;
@@ -150,24 +151,6 @@ bool stopShop(CompressorStation& cs) {
     return true;
 }
 
-
-void saveToFileP(const Pipe& pipe, bool pipeEntered) {
-    std::ofstream fout("dataP.txt");
-    if (!fout) {
-        std::cout << "Не удалось открыть файл для записи\n";
-        return;
-    }
-    fout << pipeEntered << "\n";
-    if (pipeEntered) {
-        fout << pipe.name << "\n";
-        fout << pipe.length << "\n";
-        fout << pipe.diameter << "\n";
-        fout << pipe.inRepair << "\n";
-    }
-    fout.close();
-    std::cout << "Данные трубы сохранены в dataP.txt\n";
-}
-
 void savePipeToFile(const Pipe& pipe, bool pipeEntered) {
     std::ofstream fout("data.txt", std::ios::app);
     if (!fout) {
@@ -214,7 +197,7 @@ void loadFromFile(Pipe& pipe, bool& pipeEntered,
 
     std::string tag;
     while (fin >> tag) {
-        if (tag == "PIPE") {
+        if (tag == "PIPE") {//!!
             fin >> pipeEntered;
             if (pipeEntered) {
                 std::getline(fin >> std::ws, pipe.name);
@@ -226,7 +209,7 @@ void loadFromFile(Pipe& pipe, bool& pipeEntered,
         }
         else if (tag == "CS") {
             fin >> csEntered;
-            if (csEntered) {
+            if (csEntered) {//!!
                 std::getline(fin >> std::ws, cs.name);
                 fin >> cs.totalShops;
                 fin >> cs.activeShops;
