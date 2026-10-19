@@ -151,8 +151,9 @@ bool stopShop(CompressorStation& cs) {
     return true;
 }
 
-void savePipeToFile(const Pipe& pipe, bool pipeEntered) {
-    std::ofstream fout("data.txt", std::ios::app);
+void saveToFile(const Pipe& pipe, bool pipeEntered,
+    const CompressorStation& cs, bool csEntered) {
+    std::ofstream fout("data.txt");
     if (!fout) {
         std::cout << "Не удалось открыть файл для записи\n";
         return;
@@ -165,16 +166,6 @@ void savePipeToFile(const Pipe& pipe, bool pipeEntered) {
         fout << pipe.diameter << "\n";
         fout << pipe.inRepair << "\n";
     }
-    fout.close();
-    std::cout << "Данные трубы сохранены в data.txt\n";
-}
-
-void saveCSToFile(const CompressorStation& cs, bool csEntered) {
-    std::ofstream fout("data.txt", std::ios::app);
-    if (!fout) {
-        std::cout << "Не удалось открыть файл для записи\n";
-        return;
-    }
     fout << "CS\n";
     fout << csEntered << "\n";
     if (csEntered) {
@@ -184,7 +175,7 @@ void saveCSToFile(const CompressorStation& cs, bool csEntered) {
         fout << cs.stationClass << "\n";
     }
     fout.close();
-    std::cout << "Данные КС сохранены в data.txt\n";
+    std::cout << "Данные сохранены в data.txt\n";
 }
 
 void loadFromFile(Pipe& pipe, bool& pipeEntered,
