@@ -23,10 +23,8 @@ bool isValidName(const std::string& s) {
     for (unsigned char c : s) {
         if (std::isalnum(c) || c == ' ' || c == ',' || c == '.' || c == '_' || c == '№')
             continue;
-    {
         return false;
     }
-}
     return true;
 
 }
@@ -168,67 +166,104 @@ bool stopShop(CompressorStation& cs) {
     return true;
 }
 
-void saveToFile(const Pipe& pipe, bool pipeEntered,
+void savePipeToFile(std::ostream& out, const Pipe& pipe, bool pipeEntered) {
+    out << "PIPE\n";               
+    out << pipeEntered << "\n";
+    if (pipeEntered) {
+        out << pipe.name << "\n";
+        out << pipe.length << "\n";
+        out << pipe.diameter << "\n";
+        out << pipe.inRepair << "\n";
+    }
+}
+
+void saveCSToFile(std::ostream& out, const CompressorStation& cs, bool csEntered) {
+    out << "CS\n";
+    out << csEntered << "\n";
+    if (csEntered) {
+        out << cs.name << "\n";
+        out << cs.totalShops << "\n";
+        out << cs.activeShops << "\n";
+        out << cs.stationClass << "\n";
+    }
+}
+
+void saveToFile(std::ostream& out, const Pipe& pipe, bool pipeEntered,
     const CompressorStation& cs, bool csEntered) {
-    std::ofstream fout("data.txt");
-    if (!fout) {
+    if (!out) {
         std::cout << "Не удалось открыть файл для записи\n";
         return;
     }
-    fout << "PIPE\n";
-    fout << pipeEntered << "\n";
-    if (pipeEntered) {
-        fout << pipe.name << "\n";
-        fout << pipe.length << "\n";
-        fout << pipe.diameter << "\n";
-        fout << pipe.inRepair << "\n";
-    }
-    fout << "CS\n";
-    fout << csEntered << "\n";
-    if (csEntered) {
-        fout << cs.name << "\n";
-        fout << cs.totalShops << "\n";
-        fout << cs.activeShops << "\n";
-        fout << cs.stationClass << "\n";
-    }
-    fout.close();
-    std::cout << "Данные сохранены в data.txt\n";
+    savePipeToFile(out, pipe, pipeEntered);
+    saveCSToFile(out, cs, csEntered);
 }
 
-void loadFromFile(Pipe& pipe, bool& pipeEntered,
+bool loadPipeFromFile(std::istream& in, Pipe& pipe, bool& pipeEntered) {
+    std::string objType;
+    int exists;
+
+    std::getline(in, objType);
+    if (objType != "PIPE") {
+        std::cout << "Ошибка файла: данные трубы не найдены\n";
+        return false;
+    }
+    in >> exists;
+    in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    if (exists == 1) {
+        std::getline(in, pipe.name);
+        in >> pipe.length;
+        in >> pipe.diameter;
+        in >> pipe.inRepair;
+        in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        pipeEntered = true;
+    }
+    else {
+        pipe = Pipe{};
+        pipeEntered = false;
+    }
+    return true;
+}
+
+bool loadCSFromFile(std::istream& in, CompressorStation& cs, bool& csEntered) {
+    std::string objType;
+    int exists;
+    std::getline(in, objType);
+    if (objType != "CS") {
+        std::cout << "Ошибка файла: данные КС не найдены\n";
+        return false;
+    }
+    in >> exists;
+    in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    if (exists == 1) {
+        std::getline(in, cs.name);
+        in >> cs.totalShops;
+        in >> cs.activeShops;
+        in >> cs.stationClass;
+        in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        csEntered = true;
+    }
+    else {
+        cs = CompressorStation{};
+        csEntered = false;
+    }
+    return true;
+}
+
+void loadFromFile(std::istream& in, Pipe& pipe, bool& pipeEntered,
     CompressorStation& cs, bool& csEntered) {
-    std::ifstream fin("data.txt");
-    if (!fin) {
+    if (!in) {
         std::cout << "Не удалось открыть файл для чтения\n";
         return;
     }
-    std::string tag;
-    while (fin >> tag) {
-        if (tag == "PIPE") {
-            fin >> pipeEntered;
-            if (pipeEntered) {
-                std::getline(fin >> std::ws, pipe.name);
-                fin >> pipe.length;
-                fin >> pipe.diameter;
-                fin >> pipe.inRepair;
-            }
-            std::cout << "Данные трубы загружены из data.txt\n";
-        }
-        else if (tag == "CS") {
-            fin >> csEntered;
-            if (csEntered) {
-                std::getline(fin >> std::ws, cs.name);
-                fin >> cs.totalShops;
-                fin >> cs.activeShops;
-                fin >> cs.stationClass;
-            }
-            std::cout << "Данные КС загружены из data.txt\n";
-        }
-        else {
-            std::cout << "Неизвестный тег в файле: " << tag << "\n";
-        }
+    if (!loadPipeFromFile(in, pipe, pipeEntered)) {
+        return;
     }
-    fin.close();
+    if (!loadCSFromFile(in, cs, csEntered)) {
+        return;
+    }
+    std::cout << "Данные загружены из data.txt\n";
 }
 
 int main()
@@ -261,17 +296,11 @@ int main()
             }
 
         if (choice == 1) {
-            inputPipeName(myPipe);
-            inputPipeLength(myPipe);
-            inputPipeDiameter(myPipe);
-            inputPipeRepair(myPipe);
+            inputPipe(myPipe);
             pipeEntered = true;
         }
         else if (choice == 2) {
-            inputCSName(myCS);
-            inputCSTotalShops(myCS);
-            inputCSActiveShops(myCS);
-            inputCSClass(myCS);
+            inputCompressorStation(myCS);
             csEntered = true;
         }
         else if (choice == 3) {
@@ -308,10 +337,25 @@ int main()
             }
         }
         else if (choice == 7) {
-            saveToFile(myPipe, pipeEntered, myCS, csEntered);
+            std::ofstream fout("data.txt");
+            if (!fout) {
+                std::cout << "Не удалось открыть файл для записи\n";
+            }
+            else {
+                saveToFile(fout, myPipe, pipeEntered, myCS, csEntered);
+                fout.close();
+                std::cout << "Данные сохранены в data.txt\n";
+            }
         }
         else if (choice == 8) {
-            loadFromFile(myPipe, pipeEntered, myCS, csEntered);
+            std::ifstream fin("data.txt");
+            if (!fin) {
+                std::cout << "Не удалось открыть файл для чтения\n";
+            }
+            else {
+                loadFromFile(fin, myPipe, pipeEntered, myCS, csEntered);
+                fin.close();
+            }
         }
         else if (choice == 0) {
             std::cout << "Выход\n";
