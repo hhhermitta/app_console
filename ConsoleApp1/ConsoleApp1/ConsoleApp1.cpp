@@ -4,6 +4,16 @@
 #include <limits>
 #include <cctype>
 
+static std::ofstream g_log;
+void logAction(const std::string& msg) {
+    if (g_log) {
+        std::time_t t = std::time(nullptr);
+        char buf[32];
+        std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", std::localtime(&t));
+        g_log << "[" << buf << "]" << msg << "\n";
+    }
+}
+
 struct Pipe {
     std::string name;
     double length;
