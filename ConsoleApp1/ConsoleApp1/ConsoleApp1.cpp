@@ -183,7 +183,7 @@ bool stopShop(CompressorStation& cs) {
 using PipeMap = std::unordered_map<int, Pipe>;
 using CSMap = std::unordered_map<int, CompressorStation>;
 
-std::vector<int> findPipeByName(const PipeMap& pipes, const std::string& q) {
+std::vector<int> findPipesByName(const PipeMap& pipes, const std::string& q) {
     std::vector<int> res;
     for (const auto& [id, p] : pipes)
         if (p.name.find(q) != std::string::npos) res.push_back(id);
@@ -358,22 +358,30 @@ std::vector<int> selectSubset(const std::vector<int>& found) {
 int main()
 {
     setlocale(LC_ALL, "Russian");
-    Pipe myPipe{};
-    CompressorStation myCS{};
-    bool pipeEntered = false;
-    bool csEntered = false;
+    g_log.open("app.log", std::ios::app);
+    logAction("program started");
+
+    PipeMap pipes;
+    CSMap css;
+    int nextPipeId = 1;
+    int nextCSId = 1;
 
     int choice;
     do {
         std::cout << "\n Меню\n"
-            << "1. Ввести трубу\n"
-            << "2. Ввести КС\n"
+            << "1. Добавить трубу\n"
+            << "2. Добавить КС\n"
             << "3. Показать все\n"
             << "4. Редактировать статус ремонта трубы\n"
             << "5. Запустить цех\n"
             << "6. Остановить цех\n"
             << "7. Сохранить данные в файл\n"
             << "8. Загрузить данные из файла\n"
+            << "9. Поиск труб\n"
+            << "10. Поиск КС\n"
+            << "11. Пакетное редактирование труб\n"
+            << "12. Удалить трубу\n"
+            << "13. Удалить КС\n"
             << "0. Выход\n"
             << "Выбор: ";
 
@@ -383,75 +391,164 @@ int main()
             std::cout << "Ошибка! Введите неотрицательное число: ";
             continue;
             }
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
         if (choice == 1) {
-            inputPipe(myPipe);
-            pipeEntered = true;
+            Pipe p; inputPipe(p);
+            pipes[nextPipeId++] = p;
+            logAction("add pipe id=" + std::to_string(nextPipeId - 1));
         }
         else if (choice == 2) {
-            inputCompressorStation(myCS);
-            csEntered = true;
+            CompressorStation c; inputCompressorStation(c);
+            css[nextCSId++] = c;
+            logAction("add cs id=" + std::to_string(nextCSId - 1));
         }
         else if (choice == 3) {
-            if (!pipeEntered && !csEntered) {
+            if (pipes.empty() && css.empty()) {
                 std::cout << "Данных пока нет\n";
             }
             else {
-                if (pipeEntered) printPipe(myPipe);
-                if (csEntered) printCS(myCS);
+                for (const auto& [id, p] : pipes) {
+                    std::cout << "id=" << id; printPipe(p);
+                }
+                for (const auto& [id, c] : css) {
+                    std::cout << "id=" << id; printCS(c);
+                }
             }
+            logAction("show all");
         }
         else if (choice == 4) {
-            if (!pipeEntered) {
-                std::cout << "Сначала введите трубу (1)\n";
+            if (pipes.empty()) {
+                std::cout << "Сначала добавьте трубу (1)\n";
             }
             else {
-                editPipeRepair(myPipe);
+                int id; std::cout << "id трубы: "; std::cin >> id;
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                auto it = pipes.find(id);
+                if (it != pipes.end()) {
+                    editPipeRepair(it->second);
+                    logAction("edit repair pipe id=" + std::to_string(id));
+                } else std::cout << "Не найдено\n";
             }
         }
         else if (choice == 5) {
-            if (!csEntered) {
-                std::cout << "Сначала введите КС (2)\n";
+            if (css.empty()) {
+                std::cout << "Сначала добавьте КС (2)\n";
             }
             else {
-                startShop(myCS);
+                int id; std::cout << "id КС: "; std::cin >> id;
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                auto it = css.find(id);
+                if (it != css.end()) {
+                    startShop(it->second);
+                    logAction("start shop cs id=" + std::to_string(id));
+                } else std::cout << "Не найдено\n";
             }
         }
         else if (choice == 6) {
-            if (!csEntered) {
+            if (css.empty()) {
                 std::cout << "Сначала введите КС (2)\n";
             }
             else {
-                stopShop(myCS);
+                int id; std::cout << "id КС: "; std::cin >> id;
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                auto it = css.find(id);
+                if (it != css.end()) {
+                    stopShop(it->second);
+                    logAction("stop shop cs id=" + std::to_string(id));
+                }
+                else std::cout << "Не найдено\n";
             }
         }
         else if (choice == 7) {
-            std::ofstream fout("data.txt");
-            if (!fout) {
-                std::cout << "Не удалось открыть файл для записи\n";
-            }
-            else {
-                saveToFile(fout, myPipe, pipeEntered, myCS, csEntered);
-                fout.close();
-                std::cout << "Данные сохранены в data.txt\n";
-            }
+            std::string fn = inputLine("Имя файла для сохранения: "); // CHANGED
+            saveToFile(fn, pipes, css);                               // CHANGED
         }
         else if (choice == 8) {
-            std::ifstream fin("data.txt");
-            if (!fin) {
-                std::cout << "Не удалось открыть файл для чтения\n";
+            std::string fn = inputLine("Имя файла для загрузки: "); // CHANGED
+            loadFromFile(fn, pipes, css);                           // CHANGED
+            nextPipeId = 1; nextCSId = 1;                           // NEW
+            for (const auto& [id, _] : pipes) if (id >= nextPipeId) nextPipeId = id + 1; // NEW
+            for (const auto& [id, _] : css)   if (id >= nextCSId)   nextCSId = id + 1; // NEW
+        }
+        else if (choice == 9) {                                     // NEW
+            std::cout << "1 - по названию, 2 - по признаку 'в ремонте': ";
+            int m; std::cin >> m;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::vector<int> found;
+            if (m == 1) {
+                std::string q = inputLine("Подстрока названия: ");
+                found = findPipesByName(pipes, q);
             }
-            else {
-                loadFromFile(fin, myPipe, pipeEntered, myCS, csEntered);
-                fin.close();
+            else if (m == 2) {
+                int r; std::cout << "1 - в ремонте, 0 - исправна: "; std::cin >> r;
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                found = findPipesByRepair(pipes, r == 1);
             }
+            logAction("search pipes, found=" + std::to_string(found.size())); // NEW
+            for (int id : found) { std::cout << "id=" << id; printPipe(pipes[id]); } // NEW
+        }
+        else if (choice == 10) {                                    // NEW
+            std::cout << "1 - по названию, 2 - по % незадействованных цехов: ";
+            int m; std::cin >> m;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::vector<int> found;
+            if (m == 1) {
+                std::string q = inputLine("Подстрока названия: ");
+                found = findCSByName(css, q);
+            }
+            else if (m == 2) {
+                double p; std::cout << "Процент (0..100): "; std::cin >> p;
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                found = findCSByIdlePercent(css, p);
+            }
+            logAction("search cs, found=" + std::to_string(found.size())); // NEW
+            for (int id : found) { std::cout << "id=" << id; printCS(css[id]); } // NEW
+        }
+        else if (choice == 11) {                                    // NEW
+            std::cout << "1 - по названию, 2 - по признаку 'в ремонте': ";
+            int m; std::cin >> m;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::vector<int> found;
+            if (m == 1) {
+                std::string q = inputLine("Подстрока названия: ");
+                found = findPipesByName(pipes, q);
+            }
+            else if (m == 2) {
+                int r; std::cout << "1 - в ремонте, 0 - исправна: "; std::cin >> r;
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                found = findPipesByRepair(pipes, r == 1);
+            }
+            auto subset = selectSubset(found);
+            if (subset.empty()) break;
+            std::cout << "1 - переключить ремонт, 2 - удалить: ";
+            int act; std::cin >> act;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            if (act == 1) batchEditRepair(pipes, subset);
+            else if (act == 2) batchDeletePipes(pipes, subset);
+            logAction("batch pipe action=" + std::to_string(act) +
+                " count=" + std::to_string(subset.size()));
+        }
+        else if (choice == 12) {                                    // NEW
+            int id; std::cout << "id трубы для удаления: "; std::cin >> id;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            if (pipes.erase(id)) { std::cout << "Удалено\n"; logAction("delete pipe id=" + std::to_string(id)); }
+            else std::cout << "Не найдено\n";
+        }
+        else if (choice == 13) {                                    // NEW
+            int id; std::cout << "id КС для удаления: "; std::cin >> id;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            if (css.erase(id)) { std::cout << "Удалено\n"; logAction("delete cs id=" + std::to_string(id)); }
+            else std::cout << "Не найдено\n";
         }
         else if (choice == 0) {
             std::cout << "Выход\n";
+            logAction("exit");
         }
         else {
             std::cout << "Неверный пункт меню.\n";
         }
     } while (choice != 0);
+    g_log.close();                                          // NEW
     return 0;
 }
