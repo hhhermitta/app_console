@@ -5,6 +5,7 @@
 #include <cctype>
 #include <unordered_map>
 #include <ctime>
+#include <vector>
 
 static std::ofstream g_log;
 void logAction(const std::string& msg) {
@@ -180,6 +181,36 @@ bool stopShop(CompressorStation& cs) {
 
 using PipeMap = std::unordered_map<int, Pipe>;
 using CSMap = std::unordered_map<int, CompressorStation>;
+
+std::vector<int> findPipeByName(const PipeMap& pipes, const std::string& q) {
+    std::vector<int> res;
+    for (const auto& [id, p] : pipes)
+        if (p.name.find(q) != std::string::npos) res.push_back(id);
+    return res;
+}
+
+std::vector<int> findPipesByRepair(const PipeMap& pipes, bool inRepair) {
+    std::vector<int> res;
+    for (const auto& [id, p] : pipes)
+        if (p.inRepair == inRepair) res.push_back(id);
+    return res;
+}
+
+std::vector<int> findCSByName(const CSMap& css, const std::string& q) {
+    std::vector<int> res;
+    for (const auto& [id, c] : css)
+        if (c.name.find(q) != std::string::npos) res.push_back(id);
+    return res;
+}
+
+std::vector<int> findCSByIdlePercent(const CSMap& css, double idlePercent) {
+    std::vector<int> res;
+    for (const auto& [id, c] : css) {
+        double idle = (c.totalShops - c.activeShops) * 100.0 / c.totalShops;
+        if (std::abs(idle - idlePercent) < 1e-9) res.push_back(id);
+    }
+    return res;
+}
 
 void savePipeToFile(std::ostream& out, const Pipe& pipe, bool pipeEntered) {
     out << "PIPE\n";               
