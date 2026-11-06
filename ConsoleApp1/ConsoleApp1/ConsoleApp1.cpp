@@ -3,6 +3,8 @@
 #include <string>
 #include <limits>
 #include <cctype>
+#include <unordered_map>
+#include <ctime>
 
 static std::ofstream g_log;
 void logAction(const std::string& msg) {
