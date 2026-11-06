@@ -334,6 +334,27 @@ std::string inputLine(const std::string& prompt) {
     return s;
 }
 
+std::vector<int> selectSubset(const std::vector<int>& found) {
+    if (found.empty()) { std::cout << "Ничего не найдено\n"; return {}; }
+    std::cout << "Найдено: ";
+    for (int id : found) std::cout << id << " ";
+    std::cout << "\n1 - все, 2 - выбрать вручную: ";
+    int mode; std::cin >> mode;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    if (mode == 1) return found;
+    std::vector<int> chosen;
+    std::cout << "Введите id (0 - конец): ";
+    while (true) {
+        int id; std::cin >> id;
+        if (!std::cin || id == 0) break;
+        if (std::find(found.begin(), found.end(), id) != found.end())
+            chosen.push_back(id);
+        else std::cout << "id " << id << " не найден\n";
+    }
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    return chosen;
+}
+
 int main()
 {
     setlocale(LC_ALL, "Russian");
