@@ -327,6 +327,13 @@ void loadFromFile(const std::string& filename, PipeMap& pipes, CSMap& css) {
     std::cout << "Данные загружены из " << filename << "\n";
 }
 
+std::string inputLine(const std::string& prompt) {
+    std::cout << prompt;
+    std::string s;
+    std::getline(std::cin, s);
+    return s;
+}
+
 int main()
 {
     setlocale(LC_ALL, "Russian");
