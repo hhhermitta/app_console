@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <ctime>
 #include <vector>
+#include <algorithm>
 
 static std::ofstream g_log;
 void logAction(const std::string& msg) {
@@ -210,6 +211,23 @@ std::vector<int> findCSByIdlePercent(const CSMap& css, double idlePercent) {
         if (std::abs(idle - idlePercent) < 1e-9) res.push_back(id);
     }
     return res;
+}
+
+void batchEditRepair(PipeMap& pipes, const std::vector<int>& ids) {
+    for (int id : ids) {
+        auto it = pipes.find(id);
+        if (it != pipes.end()) {
+            it->second.inRepair = !it->second.inRepair;
+            logAction("batch edit pipe id=" + std::to_string(id));
+        }
+    }
+}
+
+void batchDeletePipes(PipeMap& pipes, const std::vector<int>& ids) {
+    for (int id : ids) {
+        pipes.erase(id);
+        logAction("batch delete pipe id=" + std::to_string(id));
+    }
 }
 
 void savePipeToFile(std::ostream& out, const Pipe& pipe, bool pipeEntered) {
