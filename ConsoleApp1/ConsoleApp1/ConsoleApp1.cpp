@@ -230,10 +230,11 @@ void batchDeletePipes(PipeMap& pipes, const std::vector<int>& ids) {
     }
 }
 
-void savePipeToFile(std::ostream& out, const Pipe& pipe, bool pipeEntered) {
-    out << "PIPE\n";               
-    out << pipeEntered << "\n";
-    if (pipeEntered) {
+void savePipeToFile(std::ostream& out, const PipeMap& pipes) {
+    out << "PIPES\n";               
+    out << pipes.size() << "\n";
+    for (const auto& [id, pipe] : pipes) {
+        out << id << "\n";
         out << pipe.name << "\n";
         out << pipe.length << "\n";
         out << pipe.diameter << "\n";
@@ -241,10 +242,11 @@ void savePipeToFile(std::ostream& out, const Pipe& pipe, bool pipeEntered) {
     }
 }
 
-void saveCSToFile(std::ostream& out, const CompressorStation& cs, bool csEntered) {
-    out << "CS\n";
-    out << csEntered << "\n";
-    if (csEntered) {
+void saveCSToFile(std::ostream& out, const CSMap& css) {
+    out << "CSS\n";
+    out << css.size() << "\n";
+    for (const auto& [id, cs] : css) {
+        out << id << "\n";
         out << cs.name << "\n";
         out << cs.totalShops << "\n";
         out << cs.activeShops << "\n";
@@ -252,82 +254,77 @@ void saveCSToFile(std::ostream& out, const CompressorStation& cs, bool csEntered
     }
 }
 
-void saveToFile(std::ostream& out, const Pipe& pipe, bool pipeEntered,
-    const CompressorStation& cs, bool csEntered) {
+void saveToFile(const std::string& filename, const PipeMap& pipes, const CSMap& css) {
+    std::ofstream out(filename);
     if (!out) {
         std::cout << "Не удалось открыть файл для записи\n";
+        logAction("save failed: " + filename);
         return;
     }
-    savePipeToFile(out, pipe, pipeEntered);
-    saveCSToFile(out, cs, csEntered);
+    savePipeToFile(out, pipes);
+    saveCSToFile(out, css);
+    logAction("saved to " + filename);
+    std::cout << "Данные сохранены в " << filename << "\n";
 }
 
-bool loadPipeFromFile(std::istream& in, Pipe& pipe, bool& pipeEntered) {
+bool loadPipeFromFile(std::istream& in, PipeMap& pipes) {
     std::string objType;
-    int exists;
-
     std::getline(in, objType);
-    if (objType != "PIPE") {
-        std::cout << "Ошибка файла: данные трубы не найдены\n";
+    if (objType != "PIPES") {
+        std::cout << "Ошибка файла: данные труб не найдены\n";
         return false;
     }
-    in >> exists;
+    size_t n = 0;
+    in >> n;
     in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-    if (exists == 1) {
-        std::getline(in, pipe.name);
-        in >> pipe.length;
-        in >> pipe.diameter;
-        in >> pipe.inRepair;
+    pipes.clear();
+    for (size_t i = 0; i < n; ++i) {
+        int id; Pipe p;
+        in >> id;
         in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        pipeEntered = true;
-    }
-    else {
-        pipe = Pipe{};
-        pipeEntered = false;
+        std::getline(in, p.name);
+        in >> p.length >> p.diameter >> p.inRepair;
+        in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        pipes[id] = p;
     }
     return true;
 }
 
-bool loadCSFromFile(std::istream& in, CompressorStation& cs, bool& csEntered) {
+bool loadCSFromFile(std::istream& in, CSMap& css) {
     std::string objType;
-    int exists;
     std::getline(in, objType);
-    if (objType != "CS") {
+    if (objType != "CSS") {
         std::cout << "Ошибка файла: данные КС не найдены\n";
         return false;
     }
-    in >> exists;
+    size_t n = 0;
+    in >> n;
     in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-    if (exists == 1) {
-        std::getline(in, cs.name);
-        in >> cs.totalShops;
-        in >> cs.activeShops;
-        in >> cs.stationClass;
+    css.clear();
+    for (size_t i = 0; i < n; ++i) {
+        int id; CompressorStation c;
+        in >> id;
         in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        csEntered = true;
-    }
-    else {
-        cs = CompressorStation{};
-        csEntered = false;
+        std::getline(in, c.name);
+        in >> c.totalShops >> c.activeShops >> c.stationClass;
+        in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        css[id] = c;
     }
     return true;
 }
 
-void loadFromFile(std::istream& in, Pipe& pipe, bool& pipeEntered,
-    CompressorStation& cs, bool& csEntered) {
+void loadFromFile(const std::string& filename, PipeMap& pipes, CSMap& css) {
+    std::ifstream in(filename);
+
     if (!in) {
         std::cout << "Не удалось открыть файл для чтения\n";
+        logAction("load failed: " + filename);
         return;
     }
-    if (!loadPipeFromFile(in, pipe, pipeEntered)) {
-        return;
-    }
-    if (!loadCSFromFile(in, cs, csEntered)) {
-        return;
-    }
-    std::cout << "Данные загружены из data.txt\n";
+    if (!loadPipeFromFile(in, pipes)) return;
+    if (!loadCSFromFile(in, css)) return;
+    logAction("loaded from " + filename);
+    std::cout << "Данные загружены из " << filename << "\n";
 }
 
 int main()
