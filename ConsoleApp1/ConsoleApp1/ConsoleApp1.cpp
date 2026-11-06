@@ -178,6 +178,9 @@ bool stopShop(CompressorStation& cs) {
     return true;
 }
 
+using PipeMap = std::unordered_map<int, Pipe>;
+using CSMap = std::unordered_map<int, CompressorStation>;
+
 void savePipeToFile(std::ostream& out, const Pipe& pipe, bool pipeEntered) {
     out << "PIPE\n";               
     out << pipeEntered << "\n";
